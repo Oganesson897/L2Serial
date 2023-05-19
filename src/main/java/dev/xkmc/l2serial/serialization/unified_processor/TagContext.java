@@ -113,6 +113,9 @@ public class TagContext extends TreeContext<Tag, CompoundTag, ListTag> {
 
 	@Override
 	public String getAsString(Tag e) {
+		if (e == NULL) {
+			return "";
+		}
 		return e.getAsString();
 	}
 

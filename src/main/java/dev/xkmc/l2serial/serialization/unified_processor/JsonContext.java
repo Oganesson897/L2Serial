@@ -7,6 +7,7 @@ import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
 import dev.xkmc.l2serial.serialization.type_cache.FieldCache;
 import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -94,7 +95,10 @@ public class JsonContext extends TreeContext<JsonElement, JsonObject, JsonArray>
 	}
 
 	@Override
-	public String getAsString(JsonElement e) {
+	public String getAsString(@Nullable JsonElement e) {
+		if (e == null) {
+			return "";
+		}
 		return e.getAsString();
 	}
 

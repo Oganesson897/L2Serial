@@ -31,7 +31,7 @@ public class AliasCodec extends GenericCodec {
 
 	@Override
 	public <C extends UnifiedContext<E, O, A>, E, O extends E, A extends E>
-	E serializeValue(C ctx, TypeInfo cls, @Nullable Object obj) throws Exception {
+	E serializeValue(C ctx, TypeInfo cls, Object obj) throws Exception {
 		AliasCollection<?> alias = (AliasCollection<?>) obj;
 		List<?> list = alias.getAsList();
 		A ans = ctx.createList(list.size());

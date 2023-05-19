@@ -1,8 +1,8 @@
 package dev.xkmc.l2serial.serialization.generic_types;
 
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
-import dev.xkmc.l2serial.serialization.unified_processor.UnifiedContext;
 import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
+import dev.xkmc.l2serial.serialization.unified_processor.UnifiedContext;
 
 import javax.annotation.Nullable;
 
@@ -18,5 +18,5 @@ public abstract class GenericCodec {
 	Object deserializeValue(C ctx, E e, TypeInfo cls, @Nullable Object ans) throws Exception;
 
 	public abstract <C extends UnifiedContext<E, O, A>, E, O extends E, A extends E>
-	E serializeValue(C ctx, TypeInfo cls, @Nullable Object obj) throws Exception;
+	E serializeValue(C ctx, TypeInfo cls, Object obj) throws Exception;
 }

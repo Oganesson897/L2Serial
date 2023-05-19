@@ -1,13 +1,13 @@
 package dev.xkmc.l2serial.serialization.generic_types;
 
+import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
 import dev.xkmc.l2serial.serialization.unified_processor.UnifiedCodec;
 import dev.xkmc.l2serial.serialization.unified_processor.UnifiedContext;
-import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 
-@SuppressWarnings({"unchecked", "unsafe", "rawtypes"})
+@SuppressWarnings({"unsafe"})
 public class ArrayCodec extends GenericCodec {
 
 	@Override
@@ -31,7 +31,7 @@ public class ArrayCodec extends GenericCodec {
 
 	@Override
 	public <C extends UnifiedContext<E, O, A>, E, O extends E, A extends E>
-	E serializeValue(C ctx, TypeInfo cls, @Nullable Object obj) throws Exception {
+	E serializeValue(C ctx, TypeInfo cls, Object obj) throws Exception {
 		int n = Array.getLength(obj);
 		A ans = ctx.createList(n);
 		TypeInfo com = cls.getComponentType();
