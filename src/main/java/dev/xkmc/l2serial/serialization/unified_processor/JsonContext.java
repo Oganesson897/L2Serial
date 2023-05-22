@@ -40,7 +40,10 @@ public class JsonContext extends TreeContext<JsonElement, JsonObject, JsonArray>
 		if (e.isJsonObject()) {
 			JsonObject obj = e.getAsJsonObject();
 			if (obj.has("_class")) {
-				return Optional.of(Either.right(TypeInfo.of(Class.forName(obj.get("_class").getAsString()))));
+				String scls = obj.get("_class").getAsString();
+				if (scls != null && scls.length() > 0) {
+					return Optional.of(Either.right(TypeInfo.of(Class.forName(scls))));
+				}
 			}
 		}
 		return Optional.empty();

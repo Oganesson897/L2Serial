@@ -38,7 +38,13 @@ public class TagContext extends TreeContext<Tag, CompoundTag, ListTag> {
 		}
 		if (e instanceof CompoundTag obj) {
 			if (obj.contains("_class")) {
-				return Optional.of(Either.right(TypeInfo.of(Class.forName(obj.get("_class").getAsString()))));
+				Tag tcls = obj.get("_class");
+				if (tcls != null) {
+					String scls = tcls.getAsString();
+					if (scls.length() > 0) {
+						return Optional.of(Either.right(TypeInfo.of(Class.forName(scls))));
+					}
+				}
 			}
 		}
 		return Optional.empty();
