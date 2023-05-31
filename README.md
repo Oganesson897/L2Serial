@@ -6,6 +6,11 @@ to JSON, NBT, and packets.
 Note that not all objects support all ways of serialization,
 though they will be specially marked as such.
 
+##### Table of Contents
+- [Supported Classes](#supported-classes)
+- [How to Use](#how-to-use)
+- [Networking](#networking)
+
 ## Supported Classes
 ### List of objects supporting all 3 serialization methods:
 - All Primitive types and their boxed types (`char`,`byte`,`short`,`int`,`long`,`float`,`double`,`boolean`)
@@ -161,3 +166,13 @@ Also, it supports 3 different serialization filter:
   - This is for BlockEntity and Entity synchronization
 - toTracking: serialize fields that are marked as toTracking only
   - This is for Capability syncronization
+
+## Networking
+
+This library also comes with a networking tool. The `BasePacketHandler` can
+simplify packet handing by a lot. You only need to extend `SerialPacketBase`,
+mark your class as `@SerialClass`, mark your fields to serialize as `@SerialClass.SerialField`,
+and implement `handle` method. The method will be executed in main thread.
+
+It also has functions to send a packet to server, to one client, to all clients, 
+to tracking clients of an entity, and to tracking clients of a block.
