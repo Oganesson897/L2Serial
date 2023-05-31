@@ -38,7 +38,7 @@ Note that `ItemStack` and `Ingredient` cannot be null: null value will be treate
 ## How to use
 To mark a class as serializable, you need to also mark its fields. Here is an example:
 ```java
-
+// Mark this class as serializable
 @SerialClass
 public class TestClassA { 
 	
@@ -49,12 +49,16 @@ public class TestClassA {
     // final field. During de-serialziation,
     // this object will have values injected
     // instead of constructed again
-    // @SerialClass.SerialField 
+    @SerialClass.SerialField 
     private final TestClassB base = new TestClassB(this);
 	
     // for collections, being final or not doesn't matter
     @SerialClass.SerialField
     public final ArrayList<TestClassB> list = new ArrayList<>();
+	
+    // supports nested collections and maps
+    @SerialClass.SerialField
+    public final HashMap<Item, ArrayList<ItemStack>> list = new HashMap<>();
 
     // this field is ignored during serialization
     private boolean valid;
@@ -87,12 +91,14 @@ public class TestClassA {
 @SerialClass
 public class TestClassB {
 	
+    // do not loop reference
     public final TestClassA parent;
 	
     @SerialClass.SerialField
     public int value;
 	
     // This class cannot be constructed directly
+    // but can still have injections
     public TestClassB(TestClassA parent) {
         this.parent = parent;
     }
@@ -144,11 +150,11 @@ public class Test {
 }
 
 ```
-Same for NBT and Packets. Note that NBT has 4 methods:
-- `toTag`: serialize `@SerialClass` object to tag
-- `valueToTag`: serialize any value to tag
-- `fromTag`: deserialize `@SerialClass` object from tag
-- `valueFromTag`: deserialize any value from tag
+Same for NBT and Packets. Note that NBT has 9 methods of 4 type:
+- `TagCodec::toTag`: serialize `@SerialClass` object to tag
+- `TagCodec::valueToTag`: serialize any value to tag
+- `TagCodec::fromTag`: deserialize `@SerialClass` object from tag
+- `TagCodec::valueFromTag`: deserialize any value from tag
 Also, it supports 3 different serialization filter:
 - All: serialize everything
 - toClient: serialize fields that are marked as toClient only
