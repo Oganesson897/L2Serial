@@ -100,6 +100,8 @@ public abstract class UnifiedContext<E, O, A> {
 
 	public abstract void addField(O obj, String str, E e);
 
+	public abstract void addOptionalClass(O obj, Class<?> objcls, Class<?> clsinfo);
+
 	public abstract A createList(int size);
 
 	public abstract O createMap();

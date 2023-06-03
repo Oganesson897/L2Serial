@@ -42,11 +42,7 @@ public class RecordCodec extends GenericCodec {
 	public <C extends UnifiedContext<E, O, A>, E, O extends E, A extends E>
 	E serializeValue(C ctx, TypeInfo cls, Object obj) throws Exception {
 		O o = ctx.createMap();
-		String str = "";
-		if (obj.getClass() != cls.getAsClass()) {
-			str = obj.getClass().getName();
-		}
-		ctx.addField(o, "_class", ctx.fromString(str));
+		ctx.addOptionalClass(o, obj.getClass(), cls.getAsClass());
 		RecordCache cache = RecordCache.get(obj.getClass());
 		for (Field f : cache.getFields()) {
 			ctx.addField(o, f.getName(), UnifiedCodec.serializeValue(ctx, TypeInfo.of(f), f.get(obj)));

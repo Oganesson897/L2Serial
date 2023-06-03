@@ -59,4 +59,10 @@ public abstract class TreeContext<E, O extends E, A extends E> extends UnifiedCo
 		return Optional.empty();
 	}
 
+	@Override
+	public void addOptionalClass(O obj, Class<?> objcls, Class<?> clsinfo) {
+		if (objcls != clsinfo) {
+			addField(obj, "_class", fromString(obj.getClass().getName()));
+		}
+	}
 }

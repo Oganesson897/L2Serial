@@ -78,5 +78,12 @@ public abstract class SingletonContext<E> extends UnifiedContext<E, E, E> {
 		throw new IllegalStateException("efficient map not implemented");
 	}
 
-
+	@Override
+	public void addOptionalClass(E obj, Class<?> objcls, Class<?> clsinfo) {
+		String str = "";
+		if (objcls != clsinfo) {
+			str = objcls.getName();
+		}
+		addField(obj, "_class", fromString(str));
+	}
 }
