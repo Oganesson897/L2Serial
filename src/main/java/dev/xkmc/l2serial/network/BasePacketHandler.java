@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public class BasePacketHandler {
 
 	public final ResourceLocation CHANNEL_NAME;
