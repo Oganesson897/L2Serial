@@ -118,6 +118,22 @@ public class Handlers {
 	static {
 		new SimpleNullDefer<>(ItemStack.class, ItemStack.EMPTY);
 		new SimpleNullDefer<>(Ingredient.class, Ingredient.EMPTY);
+		new SimpleNullDefer<>(Integer.class, 0);
+		new SimpleNullDefer<>(int.class, 0);
+		new SimpleNullDefer<>(Long.class, 0L);
+		new SimpleNullDefer<>(long.class, 0L);
+		new SimpleNullDefer<>(Short.class, (short) 0);
+		new SimpleNullDefer<>(short.class, (short) 0);
+		new SimpleNullDefer<>(Byte.class, (byte) 0);
+		new SimpleNullDefer<>(byte.class, (byte) 0);
+		new SimpleNullDefer<>(Character.class, (char) 0);
+		new SimpleNullDefer<>(char.class, (char) 0);
+		new SimpleNullDefer<>(Double.class, 0d);
+		new SimpleNullDefer<>(double.class, 0d);
+		new SimpleNullDefer<>(Float.class, 0f);
+		new SimpleNullDefer<>(float.class, 0f);
+		new SimpleNullDefer<>(Boolean.class, false);
+		new SimpleNullDefer<>(boolean.class, false);
 	}
 
 	public static void register() {

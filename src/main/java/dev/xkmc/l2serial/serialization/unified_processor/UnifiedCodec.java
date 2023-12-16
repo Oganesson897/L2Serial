@@ -45,7 +45,7 @@ public class UnifiedCodec {
 
 	@Nullable
 	public static <C extends UnifiedContext<E, O, A>, E, O extends E, A extends E>
-	Object deserializeValue(C ctx, E e, TypeInfo cls, @Nullable Object ans) throws Exception {
+	Object deserializeValue(C ctx, @Nullable E e, TypeInfo cls, @Nullable Object ans) throws Exception {
 		var real = ctx.fetchRealClass(e, cls);
 		if (real.isPresent()) {
 			Optional<Optional<Object>> left = real.get().left();

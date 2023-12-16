@@ -26,7 +26,7 @@ public abstract class UnifiedContext<E, O, A> {
 	 * Optional.of(Either.left(...)) : fast return
 	 * Optional.of(Either.right(...)) : class override
 	 */
-	public abstract Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(E obj, TypeInfo def) throws Exception;
+	public abstract Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(@Nullable  E obj, TypeInfo def) throws Exception;
 
 	/**
 	 * Optional.empty() : normal

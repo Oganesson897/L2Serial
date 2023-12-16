@@ -35,7 +35,7 @@ public class PacketContext extends SingletonContext<FriendlyByteBuf> {
 	}
 
 	@Override
-	public Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(FriendlyByteBuf obj, TypeInfo cls) throws Exception {
+	public Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(@Nullable FriendlyByteBuf obj, TypeInfo cls) throws Exception {
 		byte header = instance.readByte();
 		if (header == 0) {
 			return Optional.of(Either.left(Optional.empty()));

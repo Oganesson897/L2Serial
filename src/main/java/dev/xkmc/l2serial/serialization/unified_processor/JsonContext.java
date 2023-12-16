@@ -33,8 +33,8 @@ public class JsonContext extends TreeContext<JsonElement, JsonObject, JsonArray>
 	}
 
 	@Override
-	public Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(JsonElement e, TypeInfo def) throws Exception {
-		if (e.isJsonNull()) {
+	public Optional<Either<Optional<Object>, TypeInfo>> fetchRealClass(@Nullable JsonElement e, TypeInfo def) throws Exception {
+		if (e == null || e.isJsonNull()) {
 			return Optional.of(Either.left(Optional.empty()));
 		}
 		if (e.isJsonObject()) {
