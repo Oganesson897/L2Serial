@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import dev.xkmc.l2serial.serialization.generic_types.*;
 import dev.xkmc.l2serial.serialization.nulldefer.NullDefer;
+import dev.xkmc.l2serial.serialization.nulldefer.PrimitiveNullDefer;
 import dev.xkmc.l2serial.serialization.nulldefer.SimpleNullDefer;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
@@ -118,22 +119,22 @@ public class Handlers {
 	static {
 		new SimpleNullDefer<>(ItemStack.class, ItemStack.EMPTY);
 		new SimpleNullDefer<>(Ingredient.class, Ingredient.EMPTY);
-		new SimpleNullDefer<>(Integer.class, 0);
-		new SimpleNullDefer<>(int.class, 0);
-		new SimpleNullDefer<>(Long.class, 0L);
-		new SimpleNullDefer<>(long.class, 0L);
-		new SimpleNullDefer<>(Short.class, (short) 0);
-		new SimpleNullDefer<>(short.class, (short) 0);
-		new SimpleNullDefer<>(Byte.class, (byte) 0);
-		new SimpleNullDefer<>(byte.class, (byte) 0);
-		new SimpleNullDefer<>(Character.class, (char) 0);
-		new SimpleNullDefer<>(char.class, (char) 0);
-		new SimpleNullDefer<>(Double.class, 0d);
-		new SimpleNullDefer<>(double.class, 0d);
-		new SimpleNullDefer<>(Float.class, 0f);
-		new SimpleNullDefer<>(float.class, 0f);
-		new SimpleNullDefer<>(Boolean.class, false);
-		new SimpleNullDefer<>(boolean.class, false);
+		new PrimitiveNullDefer<>(Integer.class, 0);
+		new PrimitiveNullDefer<>(int.class, 0);
+		new PrimitiveNullDefer<>(Long.class, 0L);
+		new PrimitiveNullDefer<>(long.class, 0L);
+		new PrimitiveNullDefer<>(Short.class, (short) 0);
+		new PrimitiveNullDefer<>(short.class, (short) 0);
+		new PrimitiveNullDefer<>(Byte.class, (byte) 0);
+		new PrimitiveNullDefer<>(byte.class, (byte) 0);
+		new PrimitiveNullDefer<>(Character.class, (char) 0);
+		new PrimitiveNullDefer<>(char.class, (char) 0);
+		new PrimitiveNullDefer<>(Double.class, 0d);
+		new PrimitiveNullDefer<>(double.class, 0d);
+		new PrimitiveNullDefer<>(Float.class, 0f);
+		new PrimitiveNullDefer<>(float.class, 0f);
+		new PrimitiveNullDefer<>(Boolean.class, false);
+		new PrimitiveNullDefer<>(boolean.class, false);
 	}
 
 	public static void register() {

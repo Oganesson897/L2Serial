@@ -1,6 +1,6 @@
 package dev.xkmc.l2serial.serialization.nulldefer;
 
-public final class SimpleNullDefer<T> extends NullDefer<T> {
+public class SimpleNullDefer<T> extends NullDefer<T> {
 
 	private final T val;
 
