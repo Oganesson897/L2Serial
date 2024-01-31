@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 public class RLClassHandler<R extends Tag, T> extends ClassHandler<R, T> {
 
+	@Deprecated
 	public RLClassHandler(Class<T> cls, Supplier<IForgeRegistry<T>> r) {
 		super(cls, e -> e == null ? JsonNull.INSTANCE : new JsonPrimitive(r.get().getKey(e).toString()),
 				e -> e.isJsonNull() ? null : r.get().getValue(new ResourceLocation(e.getAsString())),

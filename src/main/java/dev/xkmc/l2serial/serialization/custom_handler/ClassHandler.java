@@ -35,9 +35,9 @@ public class ClassHandler<R extends Tag, T> implements JsonClassHandler<T>, NBTC
 	}
 
 	private void put(Class<?> cls) {
-		if (toJson != null && fromJson != null) Handlers.JSON_MAP.put(cls, this);
-		if (fromTag != null && toTag != null) Handlers.NBT_MAP.put(cls, this);
-		if (fromPacket != null && toPacket != null) Handlers.PACKET_MAP.put(cls, this);
+		if (toJson != null && fromJson != null) Handlers.JSON_MAP.putIfAbsent(cls, this);
+		if (fromTag != null && toTag != null) Handlers.NBT_MAP.putIfAbsent(cls, this);
+		if (fromPacket != null && toPacket != null) Handlers.PACKET_MAP.putIfAbsent(cls, this);
 	}
 
 	@Override

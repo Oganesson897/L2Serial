@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
@@ -23,8 +24,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryManager;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class Handlers {
 
@@ -57,18 +61,11 @@ public class Handlers {
 		new StringClassHandler<>(ResourceLocation.class, ResourceLocation::new, ResourceLocation::toString);
 		new StringClassHandler<>(UUID.class, UUID::fromString, UUID::toString);
 
-		new RLClassHandler<>(Item.class, () -> ForgeRegistries.ITEMS);
-		new RLClassHandler<>(Block.class, () -> ForgeRegistries.BLOCKS);
-		new RLClassHandler<>(Potion.class, () -> ForgeRegistries.POTIONS);
-		new RLClassHandler<>(Enchantment.class, () -> ForgeRegistries.ENCHANTMENTS);
-		new RLClassHandler<>(MobEffect.class, () -> ForgeRegistries.MOB_EFFECTS);
-		new RLClassHandler<>(Wrappers.cast(EntityType.class), () -> ForgeRegistries.ENTITY_TYPES);
-
 		// partials
 
 		// no NBT
 		new ClassHandler<>(Ingredient.class, Ingredient::toJson,
-				e -> e.isJsonArray() && e.getAsJsonArray().size() == 0 ? Ingredient.EMPTY : Ingredient.fromJson(e),
+				e -> e.isJsonArray() && e.getAsJsonArray().isEmpty() ? Ingredient.EMPTY : Ingredient.fromJson(e),
 				Ingredient::fromNetwork, (p, o) -> o.toNetwork(p), null, null);
 
 		// no JSON
@@ -135,6 +132,27 @@ public class Handlers {
 		new PrimitiveNullDefer<>(float.class, 0f);
 		new PrimitiveNullDefer<>(Boolean.class, false);
 		new PrimitiveNullDefer<>(boolean.class, false);
+	}
+
+	private static final Set<ResourceLocation> SYNCED = new HashSet<>(RegistryManager.getRegistryNamesForSyncToClient());
+
+	public static <T> void enableVanilla(Class<T> cls, Supplier<IForgeRegistry<T>> reg) {
+		var id = reg.get().getRegistryName();
+		if (id.getNamespace().equals("minecraft") && !SYNCED.contains(id)) {
+			new StringRLClassHandler<>(cls, reg);
+		} else {
+			new RLClassHandler<>(cls, reg);
+		}
+	}
+
+	static {
+		enableVanilla(Item.class, () -> ForgeRegistries.ITEMS);
+		enableVanilla(Block.class, () -> ForgeRegistries.BLOCKS);
+		enableVanilla(Potion.class, () -> ForgeRegistries.POTIONS);
+		enableVanilla(Enchantment.class, () -> ForgeRegistries.ENCHANTMENTS);
+		enableVanilla(MobEffect.class, () -> ForgeRegistries.MOB_EFFECTS);
+		enableVanilla(Attribute.class, () -> ForgeRegistries.ATTRIBUTES);
+		enableVanilla(Wrappers.cast(EntityType.class), () -> ForgeRegistries.ENTITY_TYPES);
 	}
 
 	public static void register() {
