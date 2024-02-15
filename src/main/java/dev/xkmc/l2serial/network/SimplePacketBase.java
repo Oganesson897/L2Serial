@@ -1,14 +1,12 @@
 package dev.xkmc.l2serial.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent.Context;
+import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
 
-import java.util.function.Supplier;
+public interface SimplePacketBase {
 
-public abstract class SimplePacketBase {
+	void write(FriendlyByteBuf buffer);
 
-	public abstract void write(FriendlyByteBuf buffer);
-
-	public abstract void handle(Supplier<Context> context);
+	void handle(ConfigurationPayloadContext context);
 
 }

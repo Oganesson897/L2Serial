@@ -8,6 +8,9 @@ import dev.xkmc.l2serial.serialization.nulldefer.PrimitiveNullDefer;
 import dev.xkmc.l2serial.serialization.nulldefer.SimpleNullDefer;
 import dev.xkmc.l2serial.util.Wrappers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -22,10 +25,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -55,8 +55,8 @@ public class Handlers {
 		new ClassHandler<>(String.class, JsonPrimitive::new, JsonElement::getAsString, FriendlyByteBuf::readUtf, FriendlyByteBuf::writeUtf, Tag::getAsString, StringTag::valueOf);
 
 		// minecraft
-		new ClassHandler<>(ItemStack.class, StackHelper::serializeItemStack, StackHelper::deserializeItemStack, FriendlyByteBuf::readItem, (p, is) -> p.writeItemStack(is, false), ItemStack::of, is -> is.save(new CompoundTag()));
-		new ClassHandler<>(FluidStack.class, StackHelper::serializeFluidStack, StackHelper::deserializeFluidStack, FluidStack::readFromPacket, (p, f) -> f.writeToPacket(p), FluidStack::loadFluidStackFromNBT, f -> f.writeToNBT(new CompoundTag()));
+		new ClassHandler<>(ItemStack.class, StackHelper::serializeItemStack, StackHelper::deserializeItemStack, FriendlyByteBuf::readItem, FriendlyByteBuf::writeItem, ItemStack::of, is -> is.save(new CompoundTag()));
+		new ClassHandler<>(FluidStack.class, StackHelper::serializeFluidStack, StackHelper::deserializeFluidStack, FluidStack::readFromPacket, FriendlyByteBuf::writeFluidStack, FluidStack::loadFluidStackFromNBT, f -> f.writeToNBT(new CompoundTag()));
 
 		new StringClassHandler<>(ResourceLocation.class, ResourceLocation::new, ResourceLocation::toString);
 		new StringClassHandler<>(UUID.class, UUID::fromString, UUID::toString);
@@ -64,13 +64,13 @@ public class Handlers {
 		// partials
 
 		// no NBT
-		new ClassHandler<>(Ingredient.class, Ingredient::toJson,
-				e -> e.isJsonArray() && e.getAsJsonArray().isEmpty() ? Ingredient.EMPTY : Ingredient.fromJson(e),
+		new ClassHandler<>(Ingredient.class, StackHelper::serializeIngredient,
+				e -> e.isJsonArray() && e.getAsJsonArray().isEmpty() ? Ingredient.EMPTY : Ingredient.fromJson(e, false),
 				Ingredient::fromNetwork, (p, o) -> o.toNetwork(p), null, null);
 
 		// no JSON
-		new ClassHandler<CompoundTag, CompoundTag>(CompoundTag.class, null, null, FriendlyByteBuf::readAnySizeNbt, FriendlyByteBuf::writeNbt, e -> e, e -> e);
-		new ClassHandler<ListTag, ListTag>(ListTag.class, null, null, buf -> (ListTag) buf.readAnySizeNbt().get("warp"), (buf, tag) -> {
+		new ClassHandler<CompoundTag, CompoundTag>(CompoundTag.class, null, null, FriendlyByteBuf::readNbt, FriendlyByteBuf::writeNbt, e -> e, e -> e);
+		new ClassHandler<ListTag, ListTag>(ListTag.class, null, null, buf -> (ListTag) buf.readNbt().get("warp"), (buf, tag) -> {
 			CompoundTag comp = new CompoundTag();
 			comp.put("warp", tag);
 			buf.writeNbt(comp);
@@ -134,25 +134,46 @@ public class Handlers {
 		new PrimitiveNullDefer<>(boolean.class, false);
 	}
 
-	private static final Set<ResourceLocation> SYNCED = new HashSet<>(RegistryManager.getRegistryNamesForSyncToClient());
+	private static final Set<Registry<?>> VANILLA_SYNC_REGISTRIES;
 
-	public static <T> void enableVanilla(Class<T> cls, Supplier<IForgeRegistry<T>> reg) {
-		var id = reg.get().getRegistryName();
-		if (id.getNamespace().equals("minecraft") && !SYNCED.contains(id)) {
-			new StringRLClassHandler<>(cls, reg);
+	static {
+		VANILLA_SYNC_REGISTRIES = Set.of(
+				BuiltInRegistries.SOUND_EVENT, // Required for SoundEvent packets
+				BuiltInRegistries.MOB_EFFECT, // Required for MobEffect packets
+				BuiltInRegistries.BLOCK, // Required for chunk BlockState paletted containers syncing
+				BuiltInRegistries.ENCHANTMENT, // Required for EnchantmentMenu syncing
+				BuiltInRegistries.ENTITY_TYPE, // Required for Entity spawn packets
+				BuiltInRegistries.ITEM, // Required for Item/ItemStack packets
+				BuiltInRegistries.PARTICLE_TYPE, // Required for ParticleType packets
+				BuiltInRegistries.BLOCK_ENTITY_TYPE, // Required for BlockEntity packets
+				BuiltInRegistries.PAINTING_VARIANT, // Required for EntityDataSerializers
+				BuiltInRegistries.MENU, // Required for ClientboundOpenScreenPacket
+				BuiltInRegistries.COMMAND_ARGUMENT_TYPE, // Required for ClientboundCommandsPacket
+				BuiltInRegistries.STAT_TYPE, // Required for ClientboundAwardStatsPacket
+				BuiltInRegistries.VILLAGER_TYPE, // Required for EntityDataSerializers
+				BuiltInRegistries.VILLAGER_PROFESSION, // Required for EntityDataSerializers
+				BuiltInRegistries.CAT_VARIANT, // Required for EntityDataSerializers
+				BuiltInRegistries.FROG_VARIANT // Required for EntityDataSerializers
+		);
+	}
+
+	public static <T> void enableVanilla(Class<T> cls, Supplier<Registry<T>> reg) {
+		if (VANILLA_SYNC_REGISTRIES.contains(reg.get()) &&
+				reg.get() instanceof MappedRegistry<T> mapped) {
+			new RLClassHandler<>(cls, mapped);
 		} else {
-			new RLClassHandler<>(cls, reg);
+			new StringRLClassHandler<>(cls, reg);
 		}
 	}
 
 	static {
-		enableVanilla(Item.class, () -> ForgeRegistries.ITEMS);
-		enableVanilla(Block.class, () -> ForgeRegistries.BLOCKS);
-		enableVanilla(Potion.class, () -> ForgeRegistries.POTIONS);
-		enableVanilla(Enchantment.class, () -> ForgeRegistries.ENCHANTMENTS);
-		enableVanilla(MobEffect.class, () -> ForgeRegistries.MOB_EFFECTS);
-		enableVanilla(Attribute.class, () -> ForgeRegistries.ATTRIBUTES);
-		enableVanilla(Wrappers.cast(EntityType.class), () -> ForgeRegistries.ENTITY_TYPES);
+		enableVanilla(Item.class, () -> BuiltInRegistries.ITEM);
+		enableVanilla(Block.class, () -> BuiltInRegistries.BLOCK);
+		enableVanilla(Potion.class, () -> BuiltInRegistries.POTION);
+		enableVanilla(Enchantment.class, () -> BuiltInRegistries.ENCHANTMENT);
+		enableVanilla(MobEffect.class, () -> BuiltInRegistries.MOB_EFFECT);
+		enableVanilla(Attribute.class, () -> BuiltInRegistries.ATTRIBUTE);
+		enableVanilla(Wrappers.cast(EntityType.class), () -> BuiltInRegistries.ENTITY_TYPE);
 	}
 
 	public static void register() {

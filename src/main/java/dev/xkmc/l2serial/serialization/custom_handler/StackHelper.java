@@ -5,14 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class StackHelper {
 
@@ -30,7 +32,7 @@ public class StackHelper {
 	 */
 	public static JsonElement serializeForgeItemStack(ItemStack stack) {
 		JsonObject ans = new JsonObject();
-		ans.addProperty("item", ForgeRegistries.ITEMS.getKey(stack.getItem()).toString());
+		ans.addProperty("item", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
 		if (stack.getCount() > 1) {
 			ans.addProperty("count", stack.getCount());
 		}
@@ -41,16 +43,15 @@ public class StackHelper {
 	}
 
 	public static ItemStack deserializeItemStack(JsonElement elem) {
-		JsonObject obj = elem.getAsJsonObject();
-		return CraftingHelper.getItemStack(obj, true, false);
+		return Util.getOrThrow(ItemStack.CODEC.decode(JsonOps.INSTANCE, elem), IllegalStateException::new).getFirst();
 	}
 
 	public static FluidStack deserializeFluidStack(JsonElement e) {
 		JsonObject json = e.getAsJsonObject();
 		ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "fluid"));
-		Fluid fluid = ForgeRegistries.FLUIDS.getValue(id);
-		if (fluid == null)
+		if (!BuiltInRegistries.FLUID.containsKey(id))
 			throw new JsonSyntaxException("Unknown fluid '" + id + "'");
+		Fluid fluid = BuiltInRegistries.FLUID.get(id);
 		int amount = GsonHelper.getAsInt(json, "amount");
 		FluidStack stack = new FluidStack(fluid, amount);
 
@@ -71,11 +72,14 @@ public class StackHelper {
 
 	public static JsonElement serializeFluidStack(FluidStack stack) {
 		JsonObject json = new JsonObject();
-		json.addProperty("fluid", ForgeRegistries.FLUIDS.getKey(stack.getFluid()).toString());
+		json.addProperty("fluid", BuiltInRegistries.FLUID.getKey(stack.getFluid()).toString());
 		json.addProperty("amount", stack.getAmount());
 		if (stack.hasTag())
 			json.addProperty("nbt", stack.getTag().toString());
 		return json;
 	}
 
+	public static JsonElement serializeIngredient(Ingredient ing) {
+		return Util.getOrThrow(Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, ing), IllegalStateException::new);
+	}
 }
