@@ -102,7 +102,8 @@ public class UnifiedCodec {
 		while (cls.getSerialAnnotation() != null) {
 			TreeMap<String, FieldCache> map = new TreeMap<>();
 			for (FieldCache f : cls.getFields()) {
-				if (f.getSerialAnnotation() != null) {
+				var sf = f.getSerialAnnotation();
+				if (sf != null && ctx.shouldWrite(sf)) {
 					map.put(f.getName(), f);
 				}
 			}

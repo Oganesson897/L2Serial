@@ -76,9 +76,10 @@ public class Handlers {
 			buf.writeNbt(comp);
 		}, e -> e, e -> e);
 
-		new ClassHandler<>(long[].class, null, null, null, null, LongArrayTag::getAsLongArray, LongArrayTag::new);
-		new ClassHandler<>(int[].class, null, null, null, null, IntArrayTag::getAsIntArray, IntArrayTag::new);
-		new ClassHandler<>(byte[].class, null, null, null, null, ByteArrayTag::getAsByteArray, ByteArrayTag::new);
+		new ClassHandler<>(long[].class, null, null, FriendlyByteBuf::readLongArray, FriendlyByteBuf::writeLongArray, LongArrayTag::getAsLongArray, LongArrayTag::new);
+		new ClassHandler<>(int[].class, null, null, FriendlyByteBuf::readVarIntArray, FriendlyByteBuf::writeVarIntArray, IntArrayTag::getAsIntArray, IntArrayTag::new);
+		new ClassHandler<>(byte[].class, null, null, FriendlyByteBuf::readByteArray, FriendlyByteBuf::writeByteArray, ByteArrayTag::getAsByteArray, ByteArrayTag::new);
+
 		new AutoPacketNBTHandler<>(BlockPos.class,
 				tag -> new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")),
 				obj -> {

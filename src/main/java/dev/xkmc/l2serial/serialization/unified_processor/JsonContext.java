@@ -3,6 +3,7 @@ package dev.xkmc.l2serial.serialization.unified_processor;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
 import dev.xkmc.l2serial.serialization.type_cache.FieldCache;
 import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
@@ -135,4 +136,8 @@ public class JsonContext extends TreeContext<JsonElement, JsonObject, JsonArray>
 		return new JsonPrimitive(str);
 	}
 
+	@Override
+	public boolean shouldWrite(SerialClass.SerialField sf) {
+		return true;
+	}
 }

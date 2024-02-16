@@ -2,6 +2,7 @@ package dev.xkmc.l2serial.serialization.unified_processor;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import dev.xkmc.l2serial.serialization.type_cache.ClassCache;
 import dev.xkmc.l2serial.serialization.type_cache.FieldCache;
 import dev.xkmc.l2serial.serialization.type_cache.TypeInfo;
@@ -114,5 +115,7 @@ public abstract class UnifiedContext<E, O, A> {
 	public abstract boolean canBeString(E e);
 
 	public abstract E fromString(String str);
+
+	public abstract boolean shouldWrite(SerialClass.SerialField sf);
 
 }

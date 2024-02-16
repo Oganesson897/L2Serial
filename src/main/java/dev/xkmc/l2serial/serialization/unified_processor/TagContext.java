@@ -157,4 +157,9 @@ public class TagContext extends TreeContext<Tag, CompoundTag, ListTag> {
 		return StringTag.valueOf(str);
 	}
 
+	@Override
+	public boolean shouldWrite(SerialClass.SerialField sf) {
+		return pred.test(sf);
+	}
+	
 }

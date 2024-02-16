@@ -2,6 +2,7 @@ package dev.xkmc.l2serial.serialization.unified_processor;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import dev.xkmc.l2serial.serialization.SerialClass;
 import dev.xkmc.l2serial.serialization.custom_handler.Handlers;
 import dev.xkmc.l2serial.serialization.type_cache.ClassCache;
 import dev.xkmc.l2serial.serialization.type_cache.FieldCache;
@@ -11,11 +12,18 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class PacketContext extends SingletonContext<FriendlyByteBuf> {
+	private final Predicate<SerialClass.SerialField> pred;
+
+	public PacketContext(FriendlyByteBuf instance, Predicate<SerialClass.SerialField> pred) {
+		super(instance);
+		this.pred = pred;
+	}
 
 	public PacketContext(FriendlyByteBuf instance) {
-		super(instance);
+		this(instance, e -> true);
 	}
 
 	@Override
@@ -68,8 +76,13 @@ public class PacketContext extends SingletonContext<FriendlyByteBuf> {
 	}
 
 	@Override
-	public boolean shouldRead(FriendlyByteBuf obj, FieldCache field) {
-		return true;
+	public boolean shouldRead(FriendlyByteBuf obj, FieldCache field) throws Exception {
+		return pred.test(field.getSerialAnnotation());
+	}
+
+	@Override
+	public boolean shouldWrite(SerialClass.SerialField sf) {
+		return pred.test(sf);
 	}
 
 	@Override

@@ -17,9 +17,9 @@ public @interface SerialClass {
 	@Target(FIELD)
 	@interface SerialField {
 
-		boolean toClient() default false;
+		boolean toClient() default true;
 
-		boolean toTracking() default false;
+		boolean toTracking() default true;
 
 		/**
 		 * Extra properties allowing finer control of serialization filter
