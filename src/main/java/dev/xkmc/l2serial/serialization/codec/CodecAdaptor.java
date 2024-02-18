@@ -1,16 +1,21 @@
 package dev.xkmc.l2serial.serialization.codec;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import dev.xkmc.l2serial.util.Wrappers;
+import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 public record CodecAdaptor<T>(Class<T> cls, UnaryOperator<T> validator) implements Codec<T> {
@@ -34,20 +39,41 @@ public record CodecAdaptor<T>(Class<T> cls, UnaryOperator<T> validator) implemen
 
 	@Override
 	public <E> DataResult<E> encode(T input, DynamicOps<E> ops, E prefix) {
-		if (!ops.empty().equals(prefix)) {
-			return DataResult.error(() -> "Non-empty prefix for type " + ops.getClass().getSimpleName());
-		}
 		if (ops instanceof JsonOps) {
 			var json = JsonCodec.toJson(input, cls);
 			assert json != null;
+			if (!ops.empty().equals(prefix)) {
+				if (json instanceof JsonObject a && prefix instanceof JsonObject b) {
+					for (var e : b.entrySet()) {
+						a.add(e.getKey(), e.getValue());
+					}
+				} else {
+					return DataResult.error(() -> "Non-empty prefix for type " + ops.getClass().getSimpleName());
+				}
+			}
 			return DataResult.success(Wrappers.cast(json));
 		}
 		if (ops instanceof NbtOps) {
 			var tag = TagCodec.valueToTag(cls, input, e -> true);
 			assert tag != null;
+			if (!ops.empty().equals(prefix)) {
+				if (tag instanceof CompoundTag a && prefix instanceof CompoundTag b) {
+					for (var e : b.getAllKeys()) {
+						a.put(e, Objects.requireNonNull(b.get(e)));
+					}
+				} else {
+					return DataResult.error(() -> "Non-empty prefix for type " + ops.getClass().getSimpleName());
+				}
+			}
 			return DataResult.success(Wrappers.cast(tag));
 		}
 		return DataResult.error(() -> "Unknown ops type " + ops.getClass().getSimpleName());
+	}
+
+	public Codec<T> toNetwork() {
+		return Codec.BYTE_BUFFER.xmap(
+				e -> PacketCodec.from(new FriendlyByteBuf(Unpooled.wrappedBuffer(e)), cls, null),
+				e -> ByteBuffer.wrap(PacketCodec.toBytes(e, cls, x -> true)));
 	}
 
 }
